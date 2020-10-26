@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+    <p id="message">Checking for changes...</p>
+    <input id="column" placeholder="column" onchange="checkChanges()" type="text" />
+    <audio id="call">
+      <source src="http://commondatastorage.googleapis.com/codeskulptor-assets/week7-button.m4a" type="audio/mp3">
+      Your browser does not support the audio element.
+    </audio>
+
+    <script>
+    var lastTime = []; // store the last result to track changes
+    var inputValue = "";
+    function checkChanges() {
+      if(document.getElementById("column").value != inputValue) {
+        lastTime = [];
+      }
+      inputValue = document.getElementById("column").value;
+      if (inputValue != "") {
+       var columnNumber = inputValue.toLowerCase().charCodeAt(0) - 96;
+       google.script.run.withSuccessHandler(function (column) {
+         for (var i = 0; i < column.length; i++) {
+           if (lastTime[i] !== column[i] && column[i] === true) {
+             notify();
+           }
+         }
+         // store results for next time
+         lastTime = column;
+         // poll again in x miliseconds
+         var x = 1000; // 1 second
+         window.setTimeout(checkChanges, x);
+       }).getColumn(columnNumber);
+     }
+    }
+     
+    function notify() {
+      document.getElementById("call").play();
+    }  
+    </script>
+  </body>
+</html>
